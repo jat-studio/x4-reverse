@@ -51,7 +51,7 @@ class ETUniverse():
         """Парсинг тэга physics."""
         pass
 
-    def parse(self) -> None:
+    def process(self) -> None:
         """Парсинг тэга."""
         self._parse_factions()
         self._parse_jobs()

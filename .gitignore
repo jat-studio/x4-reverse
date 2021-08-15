@@ -127,3 +127,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+001.xml
+component_types
