@@ -1,0 +1,23 @@
+import xml.etree.ElementTree as ET
+
+from x4_save_parser.component.main import ETComponent
+from x4_save_parser.component.ship import ETComponentShip
+from x4_save_parser.component.station import ETComponentStation
+
+
+COMPONENTS_PARSE_MAP = {
+    "ship_l": ETComponentShip,
+    "ship_m": ETComponentShip,
+    "ship_s": ETComponentShip,
+    "ship_xl": ETComponentShip,
+    "ship_xs": ETComponentShip,
+    "station": ETComponentStation,
+}
+
+
+def create_component(component: ET) -> "ETComponent":
+    """Создание экземпляра ETComponent из xml Etree."""
+    try:
+        return COMPONENTS_PARSE_MAP[component.attrib['class']](component)
+    except KeyError:
+        return ETComponent(component)
