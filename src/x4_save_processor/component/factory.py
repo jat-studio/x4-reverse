@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 
-from x4_save_parser.component.main import ETComponent
-from x4_save_parser.component.ship import ETComponentShip
-from x4_save_parser.component.station import ETComponentStation
+from x4_save_processor.component.main import ETComponent
+from x4_save_processor.component.ship import ETComponentShip
+from x4_save_processor.component.station import ETComponentStation
 
 
 COMPONENTS_PARSE_MAP = {

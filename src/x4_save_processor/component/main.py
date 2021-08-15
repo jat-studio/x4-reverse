@@ -2,7 +2,7 @@ from typing import List
 
 import xml.etree.ElementTree as ET
 
-from x4_save_parser.component.trade import ETTrade
+from x4_save_processor.component.trade import ETTrade
 
 
 class ETComponent():

@@ -1,10 +1,10 @@
 from typing import List
 
-from x4_save_parser.config import (
+from x4_save_processor.config import (
     out_stations_construction_file_name,
     out_stations_trade_events_file_name,
 )
-from x4_save_parser.component.main import ETComponent
+from x4_save_processor.component.main import ETComponent
 
 
 class ETComponentStation(ETComponent):

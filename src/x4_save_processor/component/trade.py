@@ -2,7 +2,7 @@ from typing import Optional
 
 import xml.etree.ElementTree as ET
 
-from x4_save_parser.config import (
+from x4_save_processor.config import (
     out_trade_offers_file_name,
     out_trade_reservations_file_name,
 )

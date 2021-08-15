@@ -2,8 +2,8 @@ from typing import IO
 
 import xml.etree.ElementTree as ET
 
-from x4_save_parser.config import out_components_file_name
-from x4_save_parser.component.factory import create_component
+from x4_save_processor.config import out_components_file_name
+from x4_save_processor.component.factory import create_component
 
 
 class ETUniverse():
@@ -52,7 +52,7 @@ class ETUniverse():
         pass
 
     def process(self) -> None:
-        """Парсинг тэга."""
+        """Обработка тэга, запись результатов."""
         self._parse_factions()
         self._parse_jobs()
 

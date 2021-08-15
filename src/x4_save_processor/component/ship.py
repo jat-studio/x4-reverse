@@ -1,7 +1,7 @@
 from typing import List
 
-from x4_save_parser.config import out_ship_trade_orders_file_name
-from x4_save_parser.component.main import ETComponent
+from x4_save_processor.config import out_ship_trade_orders_file_name
+from x4_save_processor.component.main import ETComponent
 
 
 class ETComponentShip(ETComponent):
