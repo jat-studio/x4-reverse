@@ -1,8 +1,10 @@
 from typing import List
 
 import xml.etree.ElementTree as ET
+from storages.abstract import AbstractStorage
 
 from x4_save_processor.component.trade import ETTrade
+from x4_universe.entity import X4Entity
 
 
 class ETComponent():
@@ -13,23 +15,20 @@ class ETComponent():
         self.component_type = self.data.attrib["class"]
         self.code = self.data.attrib.get("code")
 
-    def get_optional_trade_data(self) -> List[str]:
-        """Получение списка дополнительных торговых данных в компоненте."""
-        return []
+    def get_optional_trade_entity(self) -> X4Entity:
+        """Получение дополнительных торговых данных в компоненте."""
+        return None
 
-    def parse_optional_trade_data(self, out_file_name: str) -> None:
+    def parse_optional_trade_data(self, storage: AbstractStorage) -> None:
         """Парсинг дополнительных торговых данных в компоненте."""
-        trade_data = self.get_optional_trade_data()
+        trade_data = self.get_optional_trade_entity()
         if trade_data:
-            with open(out_file_name, "a") as out_file:
-                out_file.writelines(
-                    [f"{self.component_type} {self.code}:\n", *trade_data]
-                )
+            storage.save(trade_data)
 
-    def parse_trade(self) -> None:
+    def parse_trade(self, storage: AbstractStorage) -> None:
         """Парсинг тэга trade в компоненте."""
-        ETTrade(self.component_type, self.code, self.data).parse()
+        ETTrade(self.component_type, self.code, self.data).parse(storage)
 
-    def parse(self) -> None:
+    def parse(self, storage: AbstractStorage) -> None:
         """Парсинг компонента по-умолчанию."""
-        self.parse_trade()
+        self.parse_trade(storage)

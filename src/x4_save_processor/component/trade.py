@@ -1,11 +1,11 @@
-from typing import Optional
-
 import xml.etree.ElementTree as ET
 
-from x4_save_processor.config import (
-    out_trade_offers_file_name,
-    out_trade_reservations_file_name,
+from storages.abstract import AbstractStorage
+from x4_universe.reservations import (
+    X4EntityReservationRow,
+    X4EntityReservations,
 )
+from x4_universe.trade import X4EntityTrade, X4EntityTradeRow
 
 
 class ETTrade():
@@ -33,7 +33,7 @@ class ETTrade():
 
         return offer_type
 
-    def _parse_offers(self) -> None:
+    def _parse_offers(self, storage: AbstractStorage) -> None:
         """Парсинг тэга offers внутри trade."""
         try:
             trades = self.data.find("offers").find("production")
@@ -41,24 +41,28 @@ class ETTrade():
             trades = []
 
         if trades:
-            with open(out_trade_offers_file_name, "a") as offers_file:
-                offers_file.write(f"{self.component_type} {self.code}:\n")
-                [
-                    offers_file.write(
-                        f"    {self._get_offer_type(trade)}"
-                        f" {trade.attrib.get('ware')}"
-                        f" price( {trade.attrib.get('price')} )"
-                        f" amount( {trade.attrib.get('amount')} )"
-                        f" desired( {trade.attrib.get('desired')} )\n"
-                    )
-                    for trade in trades
-                ]
+            storage.save(
+                X4EntityTrade(
+                    entity_code=self.code,
+                    entity_type=self.component_type,
+                    rows=[
+                        X4EntityTradeRow(
+                            offer_type=self._get_offer_type(trade),
+                            ware=trade.attrib.get('ware'),
+                            price=trade.attrib.get('price'),
+                            amount=trade.attrib.get('amount'),
+                            desired=trade.attrib.get('desired'),
+                        )
+                        for trade in trades
+                    ],
+                )
+            )
 
     def _parse_prices(self) -> None:
         """Парсинг тэга prices внутри trade."""
         pass
 
-    def _parse_reservations(self) -> None:
+    def _parse_reservations(self, storage: AbstractStorage) -> None:
         """Парсинг тэга reservations внутри trade."""
         try:
             reservations = self.data.find("reservations")
@@ -66,20 +70,24 @@ class ETTrade():
             reservations = []
 
         if reservations:
-            with open(out_trade_reservations_file_name, "a") as res_file:
-                res_file.write(f"{self.component_type} {self.code}:\n")
-                [
-                    res_file.write(
-                        f"    {reservation.attrib.get('ware')}"
-                        f" price( {reservation.attrib.get('price')} )"
-                        f" amount( {reservation.attrib.get('amount')} )"
-                        f" desired( {reservation.attrib.get('desired')} )\n"
-                    )
-                    for reservation in reservations
-                ]
+            storage.save(
+                X4EntityReservations(
+                    entity_type=self.component_type,
+                    entity_code=self.code,
+                    rows=[
+                        X4EntityReservationRow(
+                            ware=reservation.attrib.get('ware'),
+                            price=reservation.attrib.get('price'),
+                            amount=reservation.attrib.get('amount'),
+                            desired=reservation.attrib.get('desired'),
+                        )
+                        for reservation in reservations
+                    ],
+                )
+            )
 
-    def parse(self) -> None:
+    def parse(self, storage: AbstractStorage) -> None:
         """Парсинг тэга trade в ElementTree."""
-        self._parse_offers()
+        self._parse_offers(storage)
         self._parse_prices()
-        self._parse_reservations()
+        self._parse_reservations(storage)

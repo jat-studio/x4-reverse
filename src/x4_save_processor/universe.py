@@ -1,9 +1,8 @@
-from typing import IO
-
 import xml.etree.ElementTree as ET
 
-from x4_save_processor.config import out_components_file_name
+from storages.abstract import AbstractStorage
 from x4_save_processor.component.factory import create_component
+from x4_universe.component import X4EntityComponent
 
 
 class ETUniverse():
@@ -21,20 +20,22 @@ class ETUniverse():
         pass
 
     def _parse_component_recurse(
-        self, component_data: ET, depth_counter: int, components_file: IO
+        self, component_data: ET, depth_counter: int, storage: AbstractStorage
     ) -> None:
         """Рекурсивный парсинг тэгов component."""
         component = component_data.find("component")
 
         if component:
             et_component = create_component(component)
-            et_component.parse()
+            et_component.parse(storage)
 
-            components_file.write(
-                f"{depth_counter * ' '}"
-                f"{et_component.component_type}:"
-                f"{component.attrib.get('connection')}"
-                f" {et_component.code}\n"
+            storage.save(
+                X4EntityComponent(
+                    entity_type=et_component.component_type,
+                    entity_code=et_component.code,
+                    depth_counter=depth_counter,
+                    connection=component.attrib.get('connection'),
+                )
             )
 
             component_connections = component.find("connections")
@@ -42,7 +43,9 @@ class ETUniverse():
                 depth_counter += 4
                 [
                     self._parse_component_recurse(
-                        connection, depth_counter, components_file
+                        component_data=connection,
+                        depth_counter=depth_counter,
+                        storage=storage,
                     )
                     for connection in component_connections
                 ]
@@ -51,12 +54,13 @@ class ETUniverse():
         """Парсинг тэга physics."""
         pass
 
-    def process(self) -> None:
+    def process(self, storage: AbstractStorage) -> None:
         """Обработка тэга, запись результатов."""
         self._parse_factions()
         self._parse_jobs()
 
-        with open(out_components_file_name, "w") as components_file:
-            self._parse_component_recurse(self.data, 0, components_file)
+        self._parse_component_recurse(
+            component_data=self.data, depth_counter=0, storage=storage
+        )
 
         self._parse_physics()

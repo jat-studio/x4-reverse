@@ -1,31 +1,35 @@
-from typing import List
-
-from x4_save_processor.config import out_ship_trade_orders_file_name
+from storages.abstract import AbstractStorage
 from x4_save_processor.component.main import ETComponent
+from x4_universe.entity import X4Entity
+from x4_universe.orders import X4EntityOrderRow, X4EntityOrders
 
 
 class ETComponentShip(ETComponent):
     """Парсер тэга component типа ship_* в ElementTree."""
 
-    def get_optional_trade_data(self) -> List[str]:
-        """Получение списка дополнительных торговых данных в компоненте."""
-        trade_orders = []
+    def get_optional_trade_entity(self) -> X4Entity:
+        """Получение дополнительных торговых данных в компоненте."""
+        orders = X4EntityOrders(
+            entity_code=self.code, entity_type=self.component_type, rows=[]
+        )
 
         for order in self.data.find("orders") or []:
             order_trade = order.find("trade")
 
             if order_trade:
-                trade_orders.append(
-                    f"    {order.attrib['order']}"
-                    f" {order_trade.attrib['ware']}"
-                    f" price( {order_trade.attrib['price']} )"
-                    f" amount( {order_trade.attrib['amount']} )"
-                    f" desired( {order_trade.attrib['desired']} )\n"
+                orders.rows.append(
+                    X4EntityOrderRow(
+                        order=order.attrib['order'],
+                        ware=order_trade.attrib['ware'],
+                        price=order_trade.attrib['price'],
+                        amount=order_trade.attrib['amount'],
+                        desired=order_trade.attrib['desired'],
+                    )
                 )
 
-        return trade_orders
+        return orders
 
-    def parse(self) -> None:
+    def parse(self, storage: AbstractStorage) -> None:
         """Парсинг корабля."""
-        self.parse_optional_trade_data(out_ship_trade_orders_file_name)
-        self.parse_trade()
+        self.parse_optional_trade_data(storage)
+        self.parse_trade(storage)

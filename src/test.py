@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from storages.file_storage import FileStorage
 
 from x4_save_processor.component.trade import ETTrade
 
