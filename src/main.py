@@ -1,7 +1,6 @@
-from config import input_x4_save_file
-from storages.file_storage import FileStorage
-from x4_save_processor.universe import ETUniverse
+from src.storages.file_storage import FileStorage
+from src.x4_save_processor.universe import ETUniverse
 
 
 if __name__ == "__main__":
-    ETUniverse(input_x4_save_file).process(FileStorage())
+    ETUniverse("D:/X4_reverse/001.xml").process(FileStorage())

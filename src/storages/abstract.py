@@ -1,6 +1,6 @@
 from abc import ABC
 
-from x4_universe.entity import X4Entity
+from src.x4_universe.entity import X4Entity
 
 
 class AbstractStorage(ABC):
