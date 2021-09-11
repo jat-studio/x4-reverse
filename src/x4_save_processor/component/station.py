@@ -1,8 +1,8 @@
-from storages.abstract import AbstractStorage
-from x4_save_processor.component.main import ETComponent
-from x4_universe.entity import X4Entity
-from x4_universe.events import X4EntityEventRow, X4EntityEvents
-from x4_universe.station import X4EntityStation, X4EntityStationConstruction
+from src.storages.abstract import AbstractStorage
+from src.x4_save_processor.component.main import ETComponent
+from src.x4_universe.entity import X4Entity
+from src.x4_universe.events import X4EntityEventRow, X4EntityEvents
+from src.x4_universe.station import X4EntityStation, X4EntityStationConstruction
 
 
 class ETComponentStation(ETComponent):

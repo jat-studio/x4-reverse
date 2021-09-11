@@ -1,11 +1,11 @@
 import xml.etree.ElementTree as ET
 
-from storages.abstract import AbstractStorage
-from x4_universe.reservations import (
+from src.storages.abstract import AbstractStorage
+from src.x4_universe.reservations import (
     X4EntityReservationRow,
     X4EntityReservations,
 )
-from x4_universe.trade import X4EntityTrade, X4EntityTradeRow
+from src.x4_universe.trade import X4EntityTrade, X4EntityTradeRow
 
 
 class ETTrade():

@@ -1,7 +1,7 @@
-from storages.abstract import AbstractStorage
-from x4_save_processor.component.main import ETComponent
-from x4_universe.entity import X4Entity
-from x4_universe.orders import X4EntityOrderRow, X4EntityOrders
+from src.storages.abstract import AbstractStorage
+from src.x4_save_processor.component.main import ETComponent
+from src.x4_universe.entity import X4Entity
+from src.x4_universe.orders import X4EntityOrderRow, X4EntityOrders
 
 
 class ETComponentShip(ETComponent):

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from x4_universe.entity import X4Entity
+from src.x4_universe.entity import X4Entity
 
 
 @dataclass

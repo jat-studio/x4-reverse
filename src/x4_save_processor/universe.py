@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 
-from storages.abstract import AbstractStorage
-from x4_save_processor.component.factory import create_component
-from x4_universe.component import X4EntityComponent
+from src.storages.abstract import AbstractStorage
+from src.x4_save_processor.component.factory import create_component
+from src.x4_universe.component import X4EntityComponent
 
 
 class ETUniverse():

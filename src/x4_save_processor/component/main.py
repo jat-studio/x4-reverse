@@ -1,10 +1,10 @@
 from typing import List
 
 import xml.etree.ElementTree as ET
-from storages.abstract import AbstractStorage
 
-from x4_save_processor.component.trade import ETTrade
-from x4_universe.entity import X4Entity
+from src.storages.abstract import AbstractStorage
+from src.x4_save_processor.component.trade import ETTrade
+from src.x4_universe.entity import X4Entity
 
 
 class ETComponent():
