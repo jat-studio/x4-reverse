@@ -1,8 +1,7 @@
 from src.storages.db_storage import MySQLDBStorage
-from src.x4_universe.entity import X4Entity
 
 
-def test_success(mocker) -> None:
+def test_success(mocker, test_x4_entity) -> None:
     """Успешное сохранение сущности X4 в БД."""
     mocked_create_table = mocker.patch.object(
         MySQLDBStorage, "create_table_if_not_exist"
@@ -10,10 +9,9 @@ def test_success(mocker) -> None:
     mocked_insert = mocker.patch.object(
         MySQLDBStorage, "insert_entity_to_table"
     )
+    mysql_storage = MySQLDBStorage(db_connect=mocker.Mock())
 
-    MySQLDBStorage().save(  # act
-        X4Entity(entity_type="test-type", entity_code="AVS-122")
-    )
+    mysql_storage.save(test_x4_entity)  # act
 
     mocked_create_table.assert_called_once()
     mocked_insert.assert_called_once()

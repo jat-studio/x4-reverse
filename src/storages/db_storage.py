@@ -1,5 +1,4 @@
-import re
-from typing import Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 import MySQLdb
 import os
 import yaml
@@ -23,7 +22,11 @@ def get_db_access_params(
 class MySQLDBStorage(AbstractStorage):
     """Хранилище для сохранения результатов парсинга в базе данных."""
 
-    db = MySQLdb.connect(**get_db_access_params())
+    def __init__(
+        self,
+        db_connect: Optional[Any] = MySQLdb.connect(**get_db_access_params()),
+    ) -> None:
+        self.db = db_connect
 
     def _get_tables_list(self) -> List[str]:
         """Получение списка таблиц в БД."""

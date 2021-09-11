@@ -6,4 +6,4 @@ venv_activate: venv_create
 	pip install -r requirements.txt
 
 tests: venv_activate
-	pytest -vv --cov=src tests
+	pytest -vv --cov=src --cov-report term-missing:skip-covered tests
