@@ -15,7 +15,7 @@ def get_db_access_params(
     config_path: str = DB_ACCESS_FILE_PATH,
 ) -> Dict[str, Union[int, str]]:
     """Получение параметров доступа к БД."""
-    with open(config_path, "r") as cp:
+    with open(config_path, "r") as cp:  # pragma: no cover
         return yaml.safe_load(cp)
 
 
@@ -24,8 +24,9 @@ class MySQLDBStorage(AbstractStorage):
 
     def __init__(self, db_connect: Optional[Any] = None) -> None:
         self.db = db_connect or MySQLdb.connect(**get_db_access_params())
+        self._tables_list = self.get_tables_list_from_db()
 
-    def _get_tables_list(self) -> List[str]:
+    def get_tables_list_from_db(self) -> List[str]:
         """Получение списка таблиц в БД."""
         cursor = self.db.cursor()
 
@@ -66,6 +67,7 @@ class MySQLDBStorage(AbstractStorage):
             [x] Для сущности с дополнительным полем любого другого типа, должна рейзить ошибку.
             [] Для сущности с дополнительным полем типа List[X4Entity], должна ?.
         """
+        # Для базовой сущности дополнительные поля не нужны
         if issubclass(X4Entity, type(entity)):
             return ""
 
@@ -83,7 +85,7 @@ class MySQLDBStorage(AbstractStorage):
         Args:
             entity: Объект вселенной X4.
         """
-        if entity.entity_type in self._get_tables_list():
+        if entity.entity_type in self._tables_list:
             return
 
         cursor = self.db.cursor()
@@ -97,19 +99,23 @@ class MySQLDBStorage(AbstractStorage):
             ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
         )
 
-    def insert_entity_to_table(self, entity: X4Entity) -> None:
-        """Добавление данных о сущности в таблицу БД.
+        self._tables_list.append(entity.entity_type)
+
+    def insert_entity_list_to_tables(self, entity_list: List[X4Entity]) -> None:
+        """Добавление данных по списку сущностей в таблицу БД.
 
         Args:
-            entity: Объект вселенной X4.
+            entity_list: Список сущностей вселенной X4.
         """
         pass
 
-    def save(self, entity: X4Entity) -> None:
-        """Сохранение полученных данных в БД.
+    def save_entity_list(self, entity_list: List[X4Entity]) -> None:
+        """Сохранение списка сущностей вселенной X4 в БД.
 
         Args:
-            entity: Объект вселенной X4.
+            entity_list: Список сущностей вселенной X4.
         """
-        self.create_table_if_not_exist(entity)
-        self.insert_entity_to_table(entity)
+        for entity in entity_list:
+            self.create_table_if_not_exist(entity)
+
+        self.insert_entity_list_to_tables(entity_list)

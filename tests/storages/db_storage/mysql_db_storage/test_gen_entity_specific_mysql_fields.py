@@ -38,32 +38,28 @@ class FakeX4EntityWithAdditionalFieldInt(X4Entity):
     optional_int_field: Optional[int]
 
 
-def test_fail_for_entity_w_unknown_field_type(mocker) -> None:
+def test_fail_for_entity_w_unknown_field_type(mocker, test_mysql_storage) -> None:
     """Генерация дополнительных полей таблицы для базовой сущности."""
-    mysql_storage = MySQLDBStorage(db_connect=mocker.Mock())
     test_entity = FakeX4EntityWithAdditionalUnknownField(
         entity_type="test_type", entity_code="AVS-122", unknown_field=2.2
     )
 
     with pytest.raises(ValueError):  # act
-        mysql_storage.gen_entity_specific_mysql_fields(test_entity)
+        test_mysql_storage.gen_entity_specific_mysql_fields(test_entity)
 
 
-def test_success_for_base_entity(mocker, test_x4_entity) -> None:
+def test_success_for_base_entity(mocker, test_x4_entity, test_mysql_storage) -> None:
     """Генерация дополнительных полей таблицы для базовой сущности."""
-    mysql_storage = MySQLDBStorage(db_connect=mocker.Mock())
-
-    result = mysql_storage.gen_entity_specific_mysql_fields(test_x4_entity)
+    result = test_mysql_storage.gen_entity_specific_mysql_fields(test_x4_entity)
 
     assert result == ""
 
 
-def test_success_for_entity_w_str_fields(mocker) -> None:
+def test_success_for_entity_w_str_fields(mocker, test_mysql_storage) -> None:
     """Генерация дополнительных полей таблицы.
 
     Для сущности с дополнительным полем типа str/Optional[str].
     """
-    mysql_storage = MySQLDBStorage(db_connect=mocker.Mock())
     fake_entity = FakeX4EntityWithAdditionalFieldStr(
         entity_type="test_type",
         entity_code="AVS-122",
@@ -71,19 +67,18 @@ def test_success_for_entity_w_str_fields(mocker) -> None:
         optional_str_field=None,
     )
 
-    result = mysql_storage.gen_entity_specific_mysql_fields(fake_entity)
+    result = test_mysql_storage.gen_entity_specific_mysql_fields(fake_entity)
 
     assert result == (
         "`optional_str_field` varchar(60) NULL, `str_field` varchar(60) NULL, "
     )
 
 
-def test_success_for_entity_w_int_fields(mocker) -> None:
+def test_success_for_entity_w_int_fields(mocker, test_mysql_storage) -> None:
     """Генерация дополнительных полей таблицы.
 
     Для сущности с дополнительным полем типа int/Optional[int].
     """
-    mysql_storage = MySQLDBStorage(db_connect=mocker.Mock())
     fake_entity = FakeX4EntityWithAdditionalFieldInt(
         entity_type="test_type",
         entity_code="AVS-122",
@@ -91,6 +86,6 @@ def test_success_for_entity_w_int_fields(mocker) -> None:
         optional_int_field=None,
     )
 
-    result = mysql_storage.gen_entity_specific_mysql_fields(fake_entity)
+    result = test_mysql_storage.gen_entity_specific_mysql_fields(fake_entity)
 
     assert result == "`int_field` int NULL, `optional_int_field` varchar(60) NULL, "
