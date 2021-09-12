@@ -1,0 +1,6 @@
+[run]
+omit =
+    tests/*
+    src/test.py
+    src/main.py
+    src/x4_universe/*

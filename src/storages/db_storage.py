@@ -12,7 +12,7 @@ DB_ACCESS_FILE_PATH = os.path.join(
 
 
 def get_db_access_params(
-    config_path: str = DB_ACCESS_FILE_PATH
+    config_path: str = DB_ACCESS_FILE_PATH,
 ) -> Dict[str, Union[int, str]]:
     """Получение параметров доступа к БД."""
     with open(config_path, "r") as cp:
@@ -22,11 +22,8 @@ def get_db_access_params(
 class MySQLDBStorage(AbstractStorage):
     """Хранилище для сохранения результатов парсинга в базе данных."""
 
-    def __init__(
-        self,
-        db_connect: Optional[Any] = MySQLdb.connect(**get_db_access_params()),
-    ) -> None:
-        self.db = db_connect
+    def __init__(self, db_connect: Optional[Any] = None) -> None:
+        self.db = db_connect or MySQLdb.connect(**get_db_access_params())
 
     def _get_tables_list(self) -> List[str]:
         """Получение списка таблиц в БД."""
@@ -38,6 +35,14 @@ class MySQLDBStorage(AbstractStorage):
         except IndexError:
             return []
 
+    @staticmethod
+    def _gen_mysql_field_from_object_attribute(attr: Any) -> str:
+        """Генерация поля для MySQL таблицы из атрибута объекта."""
+        if attr.startswith("_") or attr in ("entity_code", "entity_type"):
+            return ""
+
+        return f"`{attr}` varchar(60) NULL, "
+
     def gen_entity_specific_mysql_fields(self, entity: X4Entity) -> str:
         """Генерация полей таблицы для информации по конкретной сущности.
 
@@ -46,8 +51,19 @@ class MySQLDBStorage(AbstractStorage):
 
         Returns:
             Строка со структурой специфичных для сущности полей в таблице БД.
+
+        TODO:
+            - Для базовой сущности должна выдавать пустую строку.
+            - Для сущности с дополнительным полем типа str, должна выдавать NULLABLE VARCHAR(60) с именем поля.
+            - Для сущности с дополнительным полем типа int, должна выдавать NULLABLE INT с именем поля.
+            - Для сущности с дополнительным полем типа List[X4Entity], должна ?.
         """
-        return ""
+        if issubclass(X4Entity, type(entity)):
+            return ""
+
+        return "".join(
+            [self._gen_mysql_field_from_object_attribute(attr) for attr in dir(entity)]
+        )
 
     def create_table_if_not_exist(self, entity: X4Entity) -> None:
         """Динамическое создание таблицы, если таблица ещё не существует.

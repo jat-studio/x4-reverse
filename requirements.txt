@@ -3,3 +3,4 @@ mysqlclient
 pytest
 pytest-cov
 pytest-mock
+black

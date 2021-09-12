@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 001.xml
 component_types
+
+# Secret configs
+src/storages/db_access.yaml
