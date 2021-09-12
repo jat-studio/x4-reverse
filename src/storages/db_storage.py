@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 import MySQLdb
 import os
 import yaml
@@ -36,12 +36,18 @@ class MySQLDBStorage(AbstractStorage):
             return []
 
     @staticmethod
-    def _gen_mysql_field_from_object_attribute(attr: Any) -> str:
+    def _gen_mysql_field_from_object_attribute(attr_name: str, attr_type: Type) -> str:
         """Генерация поля для MySQL таблицы из атрибута объекта."""
-        if attr.startswith("_") or attr in ("entity_code", "entity_type"):
+        if attr_name.startswith("__") or attr_name in ("entity_code", "entity_type"):
             return ""
 
-        return f"`{attr}` varchar(60) NULL, "
+        if attr_type is str or attr_type is type(None):
+            return f"`{attr_name}` varchar(60) NULL, "
+
+        if attr_type is int:
+            return f"`{attr_name}` int NULL, "
+
+        raise ValueError(f"Атрибут `{attr_name}` неизвестного типа: {attr_type}")
 
     def gen_entity_specific_mysql_fields(self, entity: X4Entity) -> str:
         """Генерация полей таблицы для информации по конкретной сущности.
@@ -53,17 +59,23 @@ class MySQLDBStorage(AbstractStorage):
             Строка со структурой специфичных для сущности полей в таблице БД.
 
         TODO:
-            - Для базовой сущности должна выдавать пустую строку.
-            - Для сущности с дополнительным полем типа str, должна выдавать NULLABLE VARCHAR(60) с именем поля.
-            - Для сущности с дополнительным полем типа int, должна выдавать NULLABLE INT с именем поля.
-            - Для сущности с дополнительным полем типа List[X4Entity], должна ?.
+            [x] Для базовой сущности должна выдавать пустую строку.
+            [x] Для сущности с дополнительным полем типа str, должна выдавать NULLABLE VARCHAR(60) с именем поля.
+            [x] Для сущности с дополнительным полем типа int, должна выдавать NULLABLE INT с именем поля.
+            [x] Для сущности с дополнительным полем типа NoneType, должна выдавать NULLABLE VARCHAR(60) с именем поля.
+            [x] Для сущности с дополнительным полем любого другого типа, должна рейзить ошибку.
+            [] Для сущности с дополнительным полем типа List[X4Entity], должна ?.
         """
         if issubclass(X4Entity, type(entity)):
             return ""
 
-        return "".join(
-            [self._gen_mysql_field_from_object_attribute(attr) for attr in dir(entity)]
-        )
+        mysql_fields = ""
+        for attr_name in dir(entity):
+            mysql_fields += self._gen_mysql_field_from_object_attribute(
+                attr_name=attr_name, attr_type=type(getattr(entity, attr_name))
+            )
+
+        return mysql_fields
 
     def create_table_if_not_exist(self, entity: X4Entity) -> None:
         """Динамическое создание таблицы, если таблица ещё не существует.
